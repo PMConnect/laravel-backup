@@ -287,7 +287,7 @@ class BackupCommand extends Command
             $status = $databaseBackupHandler->getDatabase($db)->dump($tempFile);
 
             if (!$status || filesize($tempFile) == 0) {
-                throw new Exception('Could not create backup of db');
+                throw new \Exception('Could not create backup of db');
             }
 
             $filesToBeBackedUp[$db] = $tempFile;
