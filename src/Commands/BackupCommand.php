@@ -139,7 +139,11 @@ class BackupCommand extends Command
          * The file could be quite large. Use a stream to copy it
          * to the target disk to avoid memory problems
          */
-        $disk->getDriver()->writeStream($destination, fopen($file, 'r+'));
+        try{
+            $disk->getDriver()->writeStream($destination, fopen($file, 'r+'));
+        }catch(\Exception $e){
+
+        }
     }
 
     /**
