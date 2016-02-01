@@ -57,7 +57,7 @@ class MySQLDatabase implements DatabaseInterface
         );
         $temporaryCredentialsFile = stream_get_meta_data($tempFileHandle)['uri'];
 
-        $command = sprintf('%smysqldump --defaults-extra-file=%s --skip-comments '.($this->useExtendedInsert() ? '--extended-insert' : '--skip-extended-insert').' %s > %s %s',
+        $command = sprintf('%smysqldump --defaults-extra-file=%s --single-transaction --quick --lock-tables=false --skip-comments '.($this->useExtendedInsert() ? '--extended-insert' : '--skip-extended-insert').' %s > %s %s',
             $this->getDumpCommandPath(),
             escapeshellarg($temporaryCredentialsFile),
             escapeshellarg($this->database),

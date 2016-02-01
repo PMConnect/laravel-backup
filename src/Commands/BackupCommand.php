@@ -77,18 +77,10 @@ class BackupCommand extends Command
     {
         $files = [];
 
-        if ((!$this->option('only-files')) && config('laravel-backup.source.backup-db')) {
-            $files[] = ['realFile' => $this->getDatabaseDump($files), 'fileInZip' => 'dump.sql'];
-        }
+        $filesToAdd =  $this->getDatabaseDump();
 
-        if (!$this->option('only-db')) {
-            $this->comment('Determining which files should be backed up...');
-            $fileBackupHandler = app()->make('Spatie\Backup\BackupHandlers\Files\FilesBackupHandler')
-                ->setIncludedFiles(config('laravel-backup.source.files.include'))
-                ->setExcludedFiles(config('laravel-backup.source.files.exclude'));
-            foreach ($fileBackupHandler->getFilesToBeBackedUp() as $file) {
-                $files[] = ['realFile' => $file, 'fileInZip' => 'files/'.$file];
-            }
+        foreach($filesToAdd as $key => $file){
+            $files[] = ['realFile' =>$file, 'fileInZip' => $key.'_backup.sql'];
         }
 
         return $files;
@@ -263,28 +255,52 @@ class BackupCommand extends Command
 
     /**
      * Get a dump of the db.
-     *
      * @return string
-     *
+     * @throws Exception
      * @throws \Exception
      */
     protected function getDatabaseDump()
     {
         $databaseBackupHandler = app()->make('Spatie\Backup\BackupHandlers\Database\DatabaseBackupHandler');
 
-        $filesToBeBackedUp = $databaseBackupHandler->getFilesToBeBackedUp();
+        $filesToBeBackedUp = array();
 
-        if (count($filesToBeBackedUp) != 1) {
+        $databases = [
+            "games_old",
+            "fitness_old",
+            "food_old",
+            "ifitness_logs",
+            "games_logs",
+            "PMSystem",
+            "wwe_new",
+
+        ];
+
+        foreach ($databases as $db) {
+
+            $newFile=storage_path()."/".'laravel-backup-db' . $db.uniqid();
+
+            touch($newFile);
+
+            $tempFile = $newFile;
+
+            $status = $databaseBackupHandler->getDatabase($db)->dump($tempFile);
+
+            if (!$status || filesize($tempFile) == 0) {
+                throw new Exception('Could not create backup of db');
+            }
+
+            $filesToBeBackedUp[$db] = $tempFile;
+            $this->temporaryFiles[] = $tempFile;
+        }
+
+        if (count($filesToBeBackedUp) < 1) {
             throw new \Exception('could not backup db');
         }
 
         $this->comment('Database dumped');
 
-        $dbDumpFile = $filesToBeBackedUp[0];
-
-        $this->temporaryFiles[] = $dbDumpFile;
-
-        return $dbDumpFile;
+        return $filesToBeBackedUp;
     }
 
     /**
