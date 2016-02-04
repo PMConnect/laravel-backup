@@ -277,6 +277,7 @@ class BackupCommand extends Command
             "games_logs",
             "PMSystem",
             "wwe_new",
+            "mobile_support",
 
         ];
 
