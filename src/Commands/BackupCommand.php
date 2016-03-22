@@ -3,6 +3,7 @@
 namespace Spatie\Backup\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Input\InputOption;
 use ZipArchive;
@@ -265,6 +266,9 @@ class BackupCommand extends Command
      */
     protected function getDatabaseDump()
     {
+
+        File::cleanDirectory(storage_path()."/app/backups/");
+
         $databaseBackupHandler = app()->make('Spatie\Backup\BackupHandlers\Database\DatabaseBackupHandler');
 
         $filesToBeBackedUp = array();
@@ -283,7 +287,7 @@ class BackupCommand extends Command
 
         foreach ($databases as $db) {
 
-            $newFile=storage_path()."/".'laravel-backup-db' . $db.uniqid();
+            $newFile=storage_path()."/app/backups/".'laravel-backup-db' . $db.uniqid();
 
             touch($newFile);
 
