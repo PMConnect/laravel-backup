@@ -1,5 +1,5 @@
 {
-    "name": "spatie/laravel-backup",
+    "name": "pmconnect/laravel-backup",
     "version":"dev-master",
     "description": "Backup command for Laravel 5 applications",
     "keywords": [
