@@ -1,5 +1,6 @@
 {
     "name": "spatie/laravel-backup",
+    "version":"dev-master",
     "description": "Backup command for Laravel 5 applications",
     "keywords": [
         "backup",
